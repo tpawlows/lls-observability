@@ -95,14 +95,22 @@ ingress:
 
 # Resource requirements (adjust based on GPU availability)
 resources:
-  limits:
-    nvidia.com/gpu: 1
-    memory: 24Gi
-    cpu: 4
-  requests:
-    nvidia.com/gpu: 1
-    memory: 16Gi
-    cpu: 2
+  gpu:
+    requests:
+      nvidia.com/gpu: 1
+      memory: 16Gi
+      cpu: 2
+    limits:
+      nvidia.com/gpu: 1
+      memory: 24Gi
+      cpu: 4
+  xeon:
+    requests:
+      cpu: 16
+      memory: 64Gi
+    limits:
+      cpu: 32
+      memory: 64Gi
 
 livenessProbe:
   httpGet:
@@ -129,21 +137,40 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
 
 nodeSelector:
-  nvidia.com/gpu.present: "true"
+  gpu:
+    nvidia.com/gpu.present: "true"
+  # xeon:
+  #   intel.com/cpu-gen: "spr
+  #   intel.com/cpu-gen: "emr"
+  #   intel.com/cpu-gen: "gnr"
 
 tolerations:
+  gpu:
   - effect: NoSchedule
     operator: Exists
+  # xeon:
+  # - effect: NoSchedule
+  #   operator: Exists
 
 affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: nvidia.com/gpu.present
-          operator: In
-          values:
-          - "true"
+  gpu:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.present
+            operator: In
+            values:
+            - "true"
+  # xeon:
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #       - matchExpressions:
+  #         # Use taints and labels to target specific CPU generations for optimal performance
+  #         - key: intel.com/cpu-gen
+  #           operator: In
+  #           values: ["spr", "emr", "gnr"]
 
 # Persistent Volume for model cache
 persistence:

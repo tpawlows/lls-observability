@@ -20,6 +20,7 @@ spec:
   - name: kserve-container
     {{- $device := lower (.Values.device | default "gpu") }}
     {{- $image := index .Values.image $device }}
+    {{- $resources := index .Values.resources $device }}
     image: "{{ (index $image "repository") }}:{{ (index $image "tag") }}"
     imagePullPolicy: {{ default "IfNotPresent" (index $image "pullPolicy") }}
     args:
@@ -61,7 +62,7 @@ spec:
       name: h2c
       protocol: TCP
     resources:
-      {{- toYaml .Values.resources | nindent 6 }}
+      {{- toYaml $resources | nindent 6 }}
     volumeMounts:
     - name: shm
       mountPath: /dev/shm
@@ -70,17 +71,17 @@ spec:
     emptyDir:
       medium: Memory
       sizeLimit: {{ .Values.servingRuntime.shmSizeLimit | default "1Gi" }}
-  {{- with .Values.nodeSelector }}
+  {{- if and .Values.nodeSelector (hasKey .Values.nodeSelector $device) }}
   nodeSelector:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml (index .Values.nodeSelector $device) | nindent 4 }}
   {{- end }}
-  {{- with .Values.affinity }}
+  {{- if and .Values.affinity (hasKey .Values.affinity $device) }}
   affinity:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml (index .Values.affinity $device) | nindent 4 }}
   {{- end }}
-  {{- with .Values.tolerations }}
+  {{- if and .Values.tolerations (hasKey .Values.tolerations $device) }}
   tolerations:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml (index .Values.tolerations $device) | nindent 4 }}
   {{- end }}
   builtInAdapter:
     serverType: vllm
