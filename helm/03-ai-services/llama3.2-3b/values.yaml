@@ -1,12 +1,19 @@
 # Default values for llama3.2-3b
 replicaCount: 1
 
+device: "gpu"  # Options: gpu, xeon
 image:
-  # repository: 'quay.io/modh/vllm@sha256:'
-  # tag: "0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
-  repository: 'quay.io/rcarrata/vllm-otlp-tracing@sha256:'
-  tag: "16f83f5858fcc04bd56ea785126c04af823e8aacbeabb9db963f86d252178189"
-  pullPolicy: IfNotPresent
+  gpu:
+    # repository: 'quay.io/modh/vllm@sha256:'
+    # tag: "0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
+    repository: 'quay.io/rcarrata/vllm-otlp-tracing@sha256'
+    tag: "16f83f5858fcc04bd56ea785126c04af823e8aacbeabb9db963f86d252178189"
+    pullPolicy: IfNotPresent
+  xeon:
+    repository: 'docker.io/opea/vllm-cpu-ubi'
+    tag: "v0.12.0-ubi9"
+    pullPolicy: IfNotPresent
+
 
 imagePullSecrets: []
 nameOverride: ""
